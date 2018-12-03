@@ -8,6 +8,8 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.atLeast;
 import static org.mockito.Mockito.atMost;
+
+import org.mockito.ArgumentCaptor;
 import java.util.List;
 
 import org.junit.Test;
@@ -41,14 +43,31 @@ public class ListMockTest {
 	}
 	@Test
 	public void verificationBasics() {
-		String value1 = mock.get(0);
-		String value2 = mock.get(1);
+		mock.get(0);
+		mock.get(1);
 		verify(mock).get(0);
 		verify(mock,times(2)).get(anyInt());
 		verify(mock,atLeast(1)).get(anyInt());
 		verify(mock,atMost(2)).get(anyInt());
 	}
-	
-	
+	@Test
+	public void argumentCapturing() {
+		//SUT
+		mock.add("SomeString");
+		ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
+		verify(mock).add(captor.capture());
+		assertEquals("SomeString", captor.getValue());
+	}
+	@Test
+	public void multipleArgumentCapturing() {
+		//SUT
+		mock.add("SomeString1");
+		mock.add("SomeString2");
+		ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
+		verify(mock,times(2)).add(captor.capture());
+		List<String> allValues = captor.getAllValues();
+		assertEquals("SomeString1", allValues.get(0));
+		assertEquals("SomeString2", allValues.get(1));
+	}	
 	
 }
